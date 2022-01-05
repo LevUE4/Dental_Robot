@@ -47,7 +47,7 @@ void ACameraReader::Tick(float DeltaTime) {
 	if (isStreamOpen && RefreshTimer >= 1.0f / RefreshRate) {
 		RefreshTimer -= 1.0f / RefreshRate;
 		ReadFrame();
-		OnNextVideoFrame();
+		//OnNextVideoFrame();
 	}
 }
 
