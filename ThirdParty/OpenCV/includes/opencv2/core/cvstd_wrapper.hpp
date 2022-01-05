@@ -42,11 +42,11 @@ struct has_parenthesis_operator
 {
 private:
     template<typename T>
-    static CV_CONSTEXPR std::true_type check(typename std::is_same<typename std::decay<decltype(std::declval<T>().operator()(std::declval<Args>()...))>::type, Ret>::type*);
+    static CV_CONSTEXPR std::true_type vc_check(typename std::is_same<typename std::decay<decltype(std::declval<T>().operator()(std::declval<Args>()...))>::type, Ret>::type*);
 
-    template<typename> static CV_CONSTEXPR std::false_type check(...);
+    template<typename> static CV_CONSTEXPR std::false_type cv_check(...);
 
-    typedef decltype(check<C>(0)) type;
+    typedef decltype(cv_check<C>(0)) type;
 
 public:
 #if __cplusplus >= 201103L || (defined(_MSC_VER) && _MSC_VER >= 1900/*MSVS 2015*/)

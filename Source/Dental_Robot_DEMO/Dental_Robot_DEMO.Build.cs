@@ -50,6 +50,8 @@ public class Dental_Robot_DEMO : ModuleRules
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 
+		PublicDependencyModuleNames.Add("MediaAssets");
+
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
 
