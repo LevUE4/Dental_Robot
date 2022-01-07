@@ -33,8 +33,11 @@ public class Dental_Robot_DEMO : ModuleRules
 
 		if (isLibrarySupported)
         {
+			//Add include path
 			PublicIncludePaths.AddRange(new string[] { Path.Combine(OpenCVPath, "Includes") });
+			//Add static lib
 			PublicAdditionalLibraries.Add(Path.Combine(LibPath, "opencv_world" + OPENCV_VERSION + ".lib"));
+			//Add dynamic lib
 			PublicDelayLoadDLLs.Add("opencv_world" + OPENCV_VERSION + ".dll");
 			PublicDelayLoadDLLs.Add("opencv_videoio_ffmpeg" + OPENCV_VERSION + "_64.dll");
         }
@@ -45,18 +48,18 @@ public class Dental_Robot_DEMO : ModuleRules
 	public Dental_Robot_DEMO(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
-	
 		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore" });
-
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
+
+		PublicDependencyModuleNames.Add("MediaAssets");
 
 		// Uncomment if you are using Slate UI
 		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
-
 		// Uncomment if you are using online features
 		// PrivateDependencyModuleNames.Add("OnlineSubsystem");
-
 		// To include OnlineSubsystemSteam, add it to the plugins section in your uproject file with the Enabled attribute set to true
+
+		PrivateDependencyModuleNames.AddRange(new string[] {"RHI", "RenderCore", "MediaAssets"});
 
 		LoadOpenCV(Target);
 	}
