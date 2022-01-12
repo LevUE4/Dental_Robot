@@ -46,14 +46,25 @@ public class Dental_Robot_DEMO : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore" });
+		PublicDependencyModuleNames.AddRange(new string[] {
+			"Core", 
+			"CoreUObject", 
+			"Engine", 
+			"InputCore"
+		});
+
+		PublicDependencyModuleNames.AddRange(new string[] {
+			"RHI",
+			"RenderCore",
+			"Media",
+			"MediaAssets"
+		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
 
-		PublicDependencyModuleNames.Add("MediaAssets");
 
 		// Uncomment if you are using Slate UI
-		// PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
+		PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
 
 		// Uncomment if you are using online features
 		// PrivateDependencyModuleNames.Add("OnlineSubsystem");
