@@ -112,18 +112,23 @@ bool AOpenCVReader::ReadFrame() {
 	if (!cvMat.empty())
 		cv::imshow("Display", cvMat);
 
+
+	void* TextureData = OpenCV_Texture2D->PlatformData->Mips[0].BulkData.Lock(LOCK_READ_WRITE);
+	const int32 TextureDataSize = ColorData.Num() * 4;
+	// set the texture data
+	FMemory::Memcpy(TextureData, ColorData.GetData(), TextureDataSize);
+	OpenCV_Texture2D->PlatformData->Mips[0].BulkData.Unlock();
+	// Apply Texture changes to GPU memory
+	OpenCV_Texture2D->UpdateResource();
+
+	/*
 	//Wrapped in a render command for performance
 	ENQUEUE_RENDER_COMMAND(WriteOpenCVTexture)(
 		[RTarget = RenderTarget, RTexture = OpenCV_Texture2D, ColorD = ColorData](FRHICommandList& RHICmdList)
 		{
-			void* TextureData = RTexture->PlatformData->Mips[0].BulkData.Lock(LOCK_READ_WRITE);
-			const int32 TextureDataSize = ColorD.Num() * 4;
-			// set the texture data
-			FMemory::Memcpy(TextureData, ColorD.GetData(), TextureDataSize);
-			RTexture->PlatformData->Mips[0].BulkData.Unlock();
-			// Apply Texture changes to GPU memory
-			RTexture->UpdateResource();
+			
 		});
+	*/
 	return true;
 }
 
