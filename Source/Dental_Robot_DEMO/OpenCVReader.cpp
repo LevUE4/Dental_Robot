@@ -86,7 +86,7 @@ int AOpenCVReader::GetColorMode_CV() {
 		cvColorMode = CV_8UC4;
 		break;
 	}
-	cvColorMode = CV_8UC4;
+	//cvColorMode = CV_8UC4;
 	return cvColorMode;
 }
 
