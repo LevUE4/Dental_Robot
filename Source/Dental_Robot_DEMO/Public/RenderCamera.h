@@ -27,11 +27,12 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	UPROPERTY(blueprintReadWrite, EditAnywhere, Category = Camera)
+	UPROPERTY(blueprintReadWrite, EditAnywhere, Category = "Components")
 		USceneComponent* rootComp;
-	UPROPERTY(blueprintReadWrite, EditAnywhere, Category = Camera)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = OpenCV)
 		UStaticMeshComponent* Screen_Raw;
-	UPROPERTY(blueprintReadWrite, EditAnywhere, Category = Camera)
+	//UPROPERTY(blueprintReadWrite, EditAnywhere, Category = "Camera")
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = OpenCV)
 		UStaticMeshComponent* Screen_Post;
 
 	UPROPERTY(blueprintReadWrite, EditAnywhere, Category = Camera, meta = (ClampMin = 0, UIMin = 0))
