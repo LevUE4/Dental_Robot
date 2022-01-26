@@ -15,21 +15,23 @@ AOpenCVCameraReader::AOpenCVCameraReader(const FObjectInitializer& ObjectInitial
 	FAttachmentTransformRules rules = FAttachmentTransformRules(EAttachmentRule::KeepRelative, false);
 
 	// Create and attach sub components
-	Screen_Raw = CreateDefaultSubobject<UStaticMeshComponent>("Screen Raw");
-	Screen_Raw->AttachToComponent(RootComponent, rules);
-	Screen_Post = CreateDefaultSubobject<UStaticMeshComponent>("Screen Post");
-	Screen_Post->AttachToComponent(RootComponent, rules);
+	RScreen = CreateDefaultSubobject<UStaticMeshComponent>("Right screen");
+	RScreen->AttachToComponent(RootComponent, rules);
+	LScreen = CreateDefaultSubobject<UStaticMeshComponent>("Left screen");
+	LScreen->AttachToComponent(RootComponent, rules);
 
 	// setup property defaults
 	ColorMode = ETextureRenderTargetFormat::RTF_RGBA8;
 
-	Brightness = 0;
-	Multiply = 1;
-
 	// Initialize OpenCV and webcam properties
-	CameraID = 0;
-	VideoTrackID = 0;
-	VideoSize = FVector2D(1920, 1080);
+	RCameraID = 0;
+	RVideoTrackID = 0;
+
+	LCameraID = 1;
+	LVideoTrackID = 0;
+
+
+	VideoSize = FVector2D(640, 480);
 	RefreshRate = 30.0f;
 }
 
@@ -39,19 +41,25 @@ void AOpenCVCameraReader::BeginPlay()
 	Super::BeginPlay();
 
 	// Prepare the color data array
-	ColorData.AddDefaulted(VideoSize.X * VideoSize.Y);
+	RColorData.AddDefaulted(VideoSize.X * VideoSize.Y);
+	LColorData.AddDefaulted(VideoSize.X * VideoSize.Y);
 
 	// setup openCV
 	cvSize = cv::Size(VideoSize.X, VideoSize.Y);
 	int cvColorMode = GetColorMode_CV();
-	cvMat = cv::Mat(cvSize, cvColorMode, ColorData.GetData());
+	rCVMat = cv::Mat(cvSize, cvColorMode, RColorData.GetData());
+	lCVMat = cv::Mat(cvSize, cvColorMode, LColorData.GetData());
 
 	// create dynamic texture
-	OpenCV_Texture2D = UTexture2D::CreateTransient(VideoSize.X, VideoSize.Y, PF_B8G8R8A8);
+	ROpenCV_Texture2D = UTexture2D::CreateTransient(VideoSize.X, VideoSize.Y, PF_B8G8R8A8);
+	LOpenCV_Texture2D = UTexture2D::CreateTransient(VideoSize.X, VideoSize.Y, PF_B8G8R8A8);
+
 #if WITH_EDITORONLY_DATA
-	OpenCV_Texture2D->MipGenSettings = TMGS_NoMipmaps;
+	ROpenCV_Texture2D->MipGenSettings = TMGS_NoMipmaps;
+	LOpenCV_Texture2D->MipGenSettings = TMGS_NoMipmaps;
 #endif
-	OpenCV_Texture2D->SRGB = RenderTarget->SRGB;
+	ROpenCV_Texture2D->SRGB = RCameraRenderTarget->SRGB;
+	LOpenCV_Texture2D->SRGB = LCameraRenderTarget->SRGB;
 }
 
 // Called every frame
@@ -62,6 +70,12 @@ void AOpenCVCameraReader::Tick(float DeltaTime)
 	if (RefreshTimer >= 1.0f / RefreshRate) {
 		RefreshTimer -= 1.0f / RefreshRate;
 		ReadFrame();
+		ProcessFrame();
+
+		cv::imshow("rcam", rCVMat);
+		cv::imshow("lcam", lCVMat);
+
+		UpdateTextureFromFrame();
 		OnNextVideoFrame();
 	}
 }
@@ -90,33 +104,45 @@ int AOpenCVCameraReader::GetColorMode_CV() {
 }
 
 bool AOpenCVCameraReader::ReadFrame() {
-	if (!OpenCV_Texture2D || !RenderTarget) return false;
-	// Read the pixels from the RenderTarget and store them in a FColor array
-	//TArray<FColor> SurfData;
+	if (!ROpenCV_Texture2D || !RCameraRenderTarget ||
+		!LOpenCV_Texture2D || !LCameraRenderTarget) return false;
 
-	FRenderTarget* renderTarget = RenderTarget->GameThread_GetRenderTargetResource();
-
-	renderTarget->ReadPixels(ColorData);
 	int cvColorMode = GetColorMode_CV();
 
-	// Get the color data
-	cvMat = cv::Mat(cvSize, cvColorMode, ColorData.GetData());
+	FRenderTarget* rCamRenderTarget = RCameraRenderTarget->GameThread_GetRenderTargetResource();
+	FRenderTarget* lCamRenderTarget = LCameraRenderTarget->GameThread_GetRenderTargetResource();
 
-	// do fun stuff here
-	cvMat.convertTo(cvMat, -1, Multiply, Brightness);
+	rCamRenderTarget->ReadPixels(RColorData);
+	lCamRenderTarget->ReadPixels(LColorData);
 
-	// show the openCV window
-	if (!cvMat.empty())
-		cv::imshow("Display", cvMat);
+	rCVMat = cv::Mat(cvSize, cvColorMode, RColorData.GetData());
+	lCVMat = cv::Mat(cvSize, cvColorMode, LColorData.GetData());
 
-	void* TextureData = OpenCV_Texture2D->PlatformData->Mips[0].BulkData.Lock(LOCK_READ_WRITE);
-	const int32 TextureDataSize = ColorData.Num() * 4;
-	// set the texture data
+	return rCVMat.empty() && lCVMat.empty();
+}
 
-	FMemory::Memcpy(TextureData, ColorData.GetData(), TextureDataSize);
-	OpenCV_Texture2D->PlatformData->Mips[0].BulkData.Unlock();
-	// Apply Texture changes to GPU memory
-	OpenCV_Texture2D->UpdateResource();
+
+void AOpenCVCameraReader::ProcessFrame() {
+
+}
+
+
+void AOpenCVCameraReader::UpdateTextureFromFrame() {
+
+	void* RTextureData = ROpenCV_Texture2D->PlatformData->Mips[0].BulkData.Lock(LOCK_READ_WRITE);
+	void* LTextureData = LOpenCV_Texture2D->PlatformData->Mips[0].BulkData.Lock(LOCK_READ_WRITE);
+
+	const int32 RTextureDataSize = RColorData.Num() * 4;
+	const int32 LTextureDataSize = LColorData.Num() * 4;
+
+	FMemory::Memcpy(RTextureData, RColorData.GetData(), RTextureDataSize);
+	FMemory::Memcpy(LTextureData, LColorData.GetData(), LTextureDataSize);
+
+	ROpenCV_Texture2D->PlatformData->Mips[0].BulkData.Unlock();
+	LOpenCV_Texture2D->PlatformData->Mips[0].BulkData.Unlock();
+
+	ROpenCV_Texture2D->UpdateResource();
+	LOpenCV_Texture2D->UpdateResource();
 
 	/*
 	//Wrapped in a render command for performance
@@ -126,20 +152,6 @@ bool AOpenCVCameraReader::ReadFrame() {
 
 		});
 	*/
-	return true;
 }
-
-void AOpenCVCameraReader::NextCamera()
-{
-	CameraID += 1;
-	ValidateCameraID();
-}
-//increment video track by one then validate exists
-void AOpenCVCameraReader::NextVideoTrack()
-{
-	VideoTrackID += 1;
-	ValidateVideoTrackID();
-}
-
 
 

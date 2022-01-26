@@ -4,11 +4,14 @@
 
 #include "opencv2/core.hpp"
 #include "opencv2/highgui.hpp"
+
 #include "MediaTexture.h"
 #include "Runtime/Engine/Classes/Engine/Texture2D.h"
 #include "Runtime/Engine/Classes/Engine/TextureRenderTarget2D.h"
+
 #include "Components/StaticMeshComponent.h"
 #include "Components/SceneCaptureComponent2D.h"
+
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "OpenCVCameraReader.generated.h"
@@ -31,19 +34,22 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = OpenCV)
-		UStaticMeshComponent* Screen_Raw;
+		UStaticMeshComponent* RScreen;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = OpenCV)
-		UStaticMeshComponent* Screen_Post;
+		UStaticMeshComponent* LScreen;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Status)
 		TEnumAsByte<ETextureRenderTargetFormat> ColorMode;
 
-	// The device ID opened by the Video Stream
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = Camera, meta = (ClampMin = 0, UIMin = 0))
-		int32 CameraID;
-	// The device ID opened by the Video Stream
+		int32 RCameraID;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = Camera, meta = (ClampMin = 0, UIMin = 0))
-		int32 VideoTrackID;
+		int32 RVideoTrackID;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = Camera, meta = (ClampMin = 0, UIMin = 0))
+		int32 LCameraID;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = Camera, meta = (ClampMin = 0, UIMin = 0))
+		int32 LVideoTrackID;
 
 
 	// The rate at which the color data array and video texture is updated (in frames per second)
@@ -54,63 +60,56 @@ public:
 		float RefreshTimer;
 
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = OpenCV)
-		float Brightness;
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = OpenCV)
-		float Multiply;
-
 	// The videos width and height (width, height)
 	UPROPERTY(BlueprintReadWrite, Category = Input)
 		FVector2D VideoSize;
 
 
-	// Camera Media Player
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = Input)
-		UMediaPlayer* MediaPlayer;
-
-	// Camera Media Texture
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = Input)
-		UMediaTexture* MediaTexture;
-
-
 	// 8 bit Render Target (Pre Edit)
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = Materials)
-		UTextureRenderTarget2D* RenderTarget;
-
-	// Draws OpenCV_Texture2D (Post Edit)
+		UTextureRenderTarget2D* RCameraRenderTarget;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = Materials)
-		UMaterialInstanceDynamic* Material_Post;
-	// Draws an assigned Render Target (Pre Edit)
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = Materials)
-		UMaterialInstanceDynamic* Material_RenderTarget;
+		UTextureRenderTarget2D* LCameraRenderTarget;
 
-	// OpenCV Texture (Post Edit)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = Input)
+		UMediaPlayer* RMediaPlayer;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = Input)
+		UMediaPlayer* LMediaPlayer;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = Input)
+		UMediaTexture* RMediaTexture;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = Input)
+		UMediaTexture* LMediaTexture;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = Materials)
+		UMaterialInstanceDynamic* RCameraMaterial;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = Materials)
+		UMaterialInstanceDynamic* LCameraMaterial;
+
+	// Right OpenCV Texture (Post Edit)
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = OpenCV)
-		UTexture2D* OpenCV_Texture2D;
-	// Color Data
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = Data)
-		TArray<FColor> ColorData;
+		UTexture2D* ROpenCV_Texture2D;
+	// Left OpenCV Texture (Post Edit)
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = OpenCV)
+		UTexture2D* LOpenCV_Texture2D;
 
 
 	UFUNCTION(BlueprintImplementableEvent, Category = OpenCV)
 		void OnNextVideoFrame();
 	// reads the current video frame
-	UFUNCTION(BlueprintCallable, Category = Data)
-		bool ReadFrame();
+	
+	bool ReadFrame();
+	void ProcessFrame();
+	void UpdateTextureFromFrame();
+
+	TArray<FColor> RColorData;
+	TArray<FColor> LColorData;
 
 	//OpenCV
 	cv::Size cvSize;
-	cv::Mat cvMat;
+	cv::Mat rCVMat;
+	cv::Mat lCVMat;
 
 	int GetColorMode_CV();
-
-	UFUNCTION(BlueprintCallable, Category = Status)
-		void NextCamera();
-	UFUNCTION(BlueprintCallable, Category = Status)
-		void NextVideoTrack();
-	UFUNCTION(BlueprintImplementableEvent, Category = Camera)
-		void ValidateVideoTrackID();
-	UFUNCTION(BlueprintImplementableEvent, Category = Camera)
-		void ValidateCameraID();
 
 };
