@@ -71,10 +71,6 @@ void AOpenCVCameraReader::Tick(float DeltaTime)
 		RefreshTimer -= 1.0f / RefreshRate;
 		ReadFrame();
 		ProcessFrame();
-
-		cv::imshow("rcam", rCVMat);
-		cv::imshow("lcam", lCVMat);
-
 		UpdateTextureFromFrame();
 		OnNextVideoFrame();
 	}
@@ -123,7 +119,12 @@ bool AOpenCVCameraReader::ReadFrame() {
 
 
 void AOpenCVCameraReader::ProcessFrame() {
+	
 
+
+	//cv::SiftFeatureDetector sift = cv::SiftFeatureDetector
+
+	//rCVMat
 }
 
 

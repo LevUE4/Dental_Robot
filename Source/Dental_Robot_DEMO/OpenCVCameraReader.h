@@ -4,6 +4,7 @@
 
 #include "opencv2/core.hpp"
 #include "opencv2/highgui.hpp"
+#include "opencv2/features2d.hpp"
 
 #include "MediaTexture.h"
 #include "Runtime/Engine/Classes/Engine/Texture2D.h"
