@@ -57,21 +57,12 @@ bool  AOpenCV_IPCamera::ReadFrame() {
 	if (!cvMat.empty())
 		cv::imshow(cameraUpdateAddress, cvMat);
 
-    for (int y = 0; y < VideoSize.Y; y++)
-    {
-        for (int x = 0; x < VideoSize.X; x++)
-        {
-            int i = x + (y * VideoSize.X);
-            Data[i].B = cvMat.data[i * 3 + 0];
-            Data[i].G = cvMat.data[i * 3 + 1];
-            Data[i].R = cvMat.data[i * 3 + 2];
-        }
-    }
+    cv::cvtColor(cvMat, cvMat, cv::COLOR_BGR2RGBA);
 
 	FTexture2DMipMap& mip = OpenCV_Texture2D->PlatformData->Mips[0];
 	void* data = mip.BulkData.Lock(LOCK_READ_WRITE);
 	auto stride = (int32)(sizeof(uint8)*4); // for r, g, b, a
-	FMemory::Memcpy(data, Data.GetData(), cvMat.size().width * cvMat.size().height*stride);
+	FMemory::Memcpy(data, cvMat.data, cvMat.size().width * cvMat.size().height*stride);
 	mip.BulkData.Unlock();
 	OpenCV_Texture2D->UpdateResource();
     
