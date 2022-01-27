@@ -119,23 +119,25 @@ bool AOpenCVCameraReader::ReadFrame() {
 
 
 void AOpenCVCameraReader::ProcessFrame() {
-	
-	//cv::Mat MATb;
-	//cv::Ptr<cv::Feature2D> f2d = cv::SIFT::create();
-	//std::vector<cv::KeyPoint> *keypoints_1 = new std::vector<cv::KeyPoint>();
-	//auto ptr = cv::Ptr<std::vector<cv::KeyPoint>>(keypoints_1);
 
-	//f2d->detect(rCVMat, *keypoints_1);
-	////f2d->detect(frame2, keypoints_2);
+	cv::Mat rHSVmat;
+	cv::Mat lHSVmat;
 
-	//cv::Mat output;
 
-	//cv::drawKeypoints(rCVMat, *keypoints_1, output);
-	//cv::imshow("surf_result.jpg", output);
+	cv::cvtColor(rCVMat, rHSVmat, cv::COLOR_RGBA2BGR);
+	cv::cvtColor(rHSVmat, rHSVmat, cv::COLOR_BGR2HSV);
 
-	//cv::InputArray
+	cv::cvtColor(lCVMat, lHSVmat, cv::COLOR_RGBA2BGR);
+	cv::cvtColor(lHSVmat, lHSVmat, cv::COLOR_BGR2HSV);
 
-	//rCVMat
+	cv::Scalar lower(30, 30, 30);
+	cv::Scalar upper(100, 100, 100);
+
+	cv::inRange(rCVMat, lower, upper, rCVMat);
+	cv::inRange(lCVMat, lower, upper, lCVMat);
+
+	cv::imshow("1", rCVMat);
+	cv::imshow("2", lCVMat);
 }
 
 
