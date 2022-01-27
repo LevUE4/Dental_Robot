@@ -120,9 +120,20 @@ bool AOpenCVCameraReader::ReadFrame() {
 
 void AOpenCVCameraReader::ProcessFrame() {
 	
+	//cv::Mat MATb;
+	//cv::Ptr<cv::Feature2D> f2d = cv::SIFT::create();
+	//std::vector<cv::KeyPoint> *keypoints_1 = new std::vector<cv::KeyPoint>();
+	//auto ptr = cv::Ptr<std::vector<cv::KeyPoint>>(keypoints_1);
 
+	//f2d->detect(rCVMat, *keypoints_1);
+	////f2d->detect(frame2, keypoints_2);
 
-	//cv::SiftFeatureDetector sift = cv::SiftFeatureDetector
+	//cv::Mat output;
+
+	//cv::drawKeypoints(rCVMat, *keypoints_1, output);
+	//cv::imshow("surf_result.jpg", output);
+
+	//cv::InputArray
 
 	//rCVMat
 }
