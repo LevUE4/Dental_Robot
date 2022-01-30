@@ -14,6 +14,7 @@
 
 #include "Components/StaticMeshComponent.h"
 #include "Components/SceneCaptureComponent2D.h"
+#include "Components/ActorComponent.h"
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
@@ -61,6 +62,19 @@ public:
 	// The refresh timer
 	UPROPERTY(BlueprintReadWrite, Category = OpenCV)
 		float RefreshTimer;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = MaskProperty)
+		int Parameter1;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = MaskProperty)
+		int Parameter2;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = MaskProperty)
+		int Parameter3;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = MaskProperty)
+		int Parameter4;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = MaskProperty)
+		int Parameter5;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = MaskProperty)
+		int Parameter6;
 
 
 	// The videos width and height (width, height)

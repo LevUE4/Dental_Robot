@@ -2,6 +2,19 @@
 
 
 #include "OpenCVCameraReader.h"
+#include "Misc/Paths.h"
+#include "OpenCVExtended.hpp"
+#include "Engine/Engine.h"
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+cv::Mat stereoMapL_x = cv::Mat();
+cv::Mat stereoMapL_y = cv::Mat();
+cv::Mat stereoMapR_x = cv::Mat();
+cv::Mat stereoMapR_y = cv::Mat();
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Sets default values
 AOpenCVCameraReader::AOpenCVCameraReader(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
@@ -60,6 +73,15 @@ void AOpenCVCameraReader::BeginPlay()
 #endif
 	ROpenCV_Texture2D->SRGB = RCameraRenderTarget->SRGB;
 	LOpenCV_Texture2D->SRGB = LCameraRenderTarget->SRGB;
+
+
+	cv::FileStorage fileStorage = cv::FileStorage();
+	fileStorage.open("F:\\Files\\GitHub\\Dental_Robot\\CameraChessTest\\stereoMap.xml", cv::FileStorage::READ);
+
+	stereoMapL_x = fileStorage["stereoMapL_x"].mat();
+	stereoMapL_y = fileStorage["stereoMapL_y"].mat();
+	stereoMapR_x = fileStorage["stereoMapR_x"].mat();
+	stereoMapR_y = fileStorage["stereoMapR_y"].mat();
 }
 
 // Called every frame
@@ -117,27 +139,23 @@ bool AOpenCVCameraReader::ReadFrame() {
 	return rCVMat.empty() && lCVMat.empty();
 }
 
-
 void AOpenCVCameraReader::ProcessFrame() {
 
-	cv::Mat rHSVmat;
-	cv::Mat lHSVmat;
+	/*
+	cv::Point p = findColor(rCVMat, Parameter1, Parameter2, Parameter3, Parameter4, Parameter5, Parameter6);
+	if (GEngine)
+		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, FString::FromInt(p.x) + "  " + FString::FromInt(p.y));
+	cv::circle(rCVMat, p, 4, { 0,0,0 }, cv::FILLED);
+	*/
 
 
-	cv::cvtColor(rCVMat, rHSVmat, cv::COLOR_RGBA2BGR);
-	cv::cvtColor(rHSVmat, rHSVmat, cv::COLOR_BGR2HSV);
+	cv::remap(rCVMat, rCVMat, stereoMapR_x, stereoMapR_y, cv::INTER_LANCZOS4, cv::BORDER_CONSTANT, 0);
+	cv::remap(lCVMat, lCVMat, stereoMapL_x, stereoMapL_y, cv::INTER_LANCZOS4, cv::BORDER_CONSTANT, 0);
 
-	cv::cvtColor(lCVMat, lHSVmat, cv::COLOR_RGBA2BGR);
-	cv::cvtColor(lHSVmat, lHSVmat, cv::COLOR_BGR2HSV);
 
-	cv::Scalar lower(30, 30, 30);
-	cv::Scalar upper(100, 100, 100);
+	cv::imshow("r", rCVMat);
+	cv::imshow("l", lCVMat);
 
-	cv::inRange(rCVMat, lower, upper, rCVMat);
-	cv::inRange(lCVMat, lower, upper, lCVMat);
-
-	cv::imshow("1", rCVMat);
-	cv::imshow("2", lCVMat);
 }
 
 

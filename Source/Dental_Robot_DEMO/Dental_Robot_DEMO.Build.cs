@@ -42,6 +42,19 @@ public class Dental_Robot_DEMO : ModuleRules
 		return isLibrarySupported;
     }
 
+	public bool LoadOpenCVExtended(ReadOnlyTargetRules Target)
+	{
+		string OpenCVExtPath = Path.Combine(ThirdPartyPath, "OpenCVExtended");
+
+
+		PublicAdditionalLibraries.Add(Path.Combine(OpenCVExtPath, "UE4_OpenCV_DLL.lib"));
+		PublicDelayLoadDLLs.Add("UE4_OpenCV_DLL.dll");
+		
+		PublicDefinitions.Add(string.Format("WITH_OPENCV_EXTENDED_BINDING={0}", 1));
+
+		return true;
+	}
+
 	public Dental_Robot_DEMO(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
@@ -71,6 +84,6 @@ public class Dental_Robot_DEMO : ModuleRules
 
 		// To include OnlineSubsystemSteam, add it to the plugins section in your uproject file with the Enabled attribute set to true
 
-		LoadOpenCV(Target);
+		if(LoadOpenCV(Target)) LoadOpenCVExtended(Target);
 	}
 }
