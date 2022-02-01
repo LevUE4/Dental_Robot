@@ -214,7 +214,7 @@ void AOpenCVCameraReader::ProcessFrame() {
 		float depth = find_depth(rPoint, lPoint, rCVMat, lCVMat, btwCameraDistance, fLen, cameraFov);
 
 		if (GEngine)
-			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, FString::FromInt(x_world) + " " + FString::FromInt(y_world) + " " + FString::FromInt(depth));
+			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, FString(FString::SanitizeFloat(depth) + " " + FString::SanitizeFloat(x_world) + " " + FString::SanitizeFloat(-y_world)));
 
 		cv::imshow("r", rCVMat);
 		cv::imshow("l", lCVMat);
