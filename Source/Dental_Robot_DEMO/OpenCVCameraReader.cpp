@@ -142,7 +142,7 @@ bool AOpenCVCameraReader::ReadFrame() {
 float x_world;
 float y_world;
 
-FVector find_depth(cv::Point right_point, cv::Point left_point, cv::Mat frame_right, cv::Mat frame_left, float btwCameraDistance, float fLen, float cameraFov) {
+FVector find_depth(FloatPoint2D  right_point, FloatPoint2D  left_point, cv::Mat frame_right, cv::Mat frame_left, float btwCameraDistance, float fLen, float cameraFov) {
 
 	//CONVERT FOCAL LENGTH f FROM[mm] TO[pixel]:
 
@@ -193,22 +193,23 @@ void AOpenCVCameraReader::ProcessFrame() {
 	//cv::remap(lCVMat, lCVMat, stereoMapL_x, stereoMapL_y, cv::INTER_LANCZOS4, cv::BORDER_CONSTANT, 0);
 	
 	//2D Red color objects tracking
-	cv::Point topRPoint = findColor(rCVMat, TopParameter1, TopParameter2, TopParameter3, TopParameter4, TopParameter5, TopParameter6);
-	cv::Point topLPoint = findColor(lCVMat, TopParameter1, TopParameter2, TopParameter3, TopParameter4, TopParameter5, TopParameter6);
-	cv::Point downRPoint = findColor(rCVMat, DownParameter1, DownParameter2, DownParameter3, DownParameter4, DownParameter5, DownParameter6);
-	cv::Point downLPoint = findColor(lCVMat, DownParameter1, DownParameter2, DownParameter3, DownParameter4, DownParameter5, DownParameter6);
+	FloatPoint2D topRPoint = findColor(rCVMat, TopParameter1, TopParameter2, TopParameter3, TopParameter4, TopParameter5, TopParameter6);
+	FloatPoint2D topLPoint = findColor(lCVMat, TopParameter1, TopParameter2, TopParameter3, TopParameter4, TopParameter5, TopParameter6);
 
-	cv::circle(rCVMat, topRPoint, 4, { 0,0,255 }, cv::FILLED);
-	cv::circle(lCVMat, topLPoint, 4, { 0,0,255 }, cv::FILLED);
+	FloatPoint2D downRPoint = findColor(rCVMat, DownParameter1, DownParameter2, DownParameter3, DownParameter4, DownParameter5, DownParameter6);
+	FloatPoint2D downLPoint = findColor(lCVMat, DownParameter1, DownParameter2, DownParameter3, DownParameter4, DownParameter5, DownParameter6);
 
-	cv::circle(rCVMat, downRPoint, 4, { 0,0,255 }, cv::FILLED);
-	cv::circle(lCVMat, downLPoint, 4, { 0,0,255 }, cv::FILLED);
+	cv::circle(rCVMat, cv::Point(topRPoint.x, topRPoint.y), 4, { 255,255,255 }, cv::FILLED);
+	cv::circle(lCVMat, cv::Point(topLPoint.x, topLPoint.y), 4, { 255,255,255 }, cv::FILLED);
 
+	cv::circle(rCVMat, cv::Point(downRPoint.x, downRPoint.y), 4, { 255,255,255 }, cv::FILLED);
+	cv::circle(lCVMat, cv::Point(downLPoint.x, downLPoint.y), 4, { 255,255,255 }, cv::FILLED);
+	
 	if (topRPoint.x != -1 && topLPoint.x != -1)
 	{
 		float	btwCameraDistance = 4; // Distance between the cameras[cm]
 		float	fLen = 1;              // Camera lense's focal length [mm]
-		float	cameraFov = 120;	   // Field of view
+		float	cameraFov = 120;	   // Field of view 
 
 
 		TopDrillPosition = find_depth(topRPoint, topLPoint, rCVMat, lCVMat, btwCameraDistance, fLen, cameraFov);
