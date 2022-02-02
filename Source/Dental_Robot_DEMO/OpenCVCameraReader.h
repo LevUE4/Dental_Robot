@@ -63,18 +63,36 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = OpenCV)
 		float RefreshTimer;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = MaskProperty)
-		int Parameter1;
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = MaskProperty)
-		int Parameter2;
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = MaskProperty)
-		int Parameter3;
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = MaskProperty)
-		int Parameter4;
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = MaskProperty)
-		int Parameter5;
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = MaskProperty)
-		int Parameter6;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = TopMaskProperty)
+		int TopParameter1;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = TopMaskProperty)
+		int TopParameter2;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = TopMaskProperty)
+		int TopParameter3;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = TopMaskProperty)
+		int TopParameter4;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = TopMaskProperty)
+		int TopParameter5;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = TopMaskProperty)
+		int TopParameter6;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = DownMaskProperty)
+		int DownParameter1;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = DownMaskProperty)
+		int DownParameter2;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = DownMaskProperty)
+		int DownParameter3;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = DownMaskProperty)
+		int DownParameter4;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = DownMaskProperty)
+		int DownParameter5;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = DownMaskProperty)
+		int DownParameter6;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = OpenCV)
+		FVector TopDrillPosition;
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = OpenCV)
+		FVector DownDrillPosition;
 
 
 	// The videos width and height (width, height)

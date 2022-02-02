@@ -74,14 +74,14 @@ void AOpenCVCameraReader::BeginPlay()
 	ROpenCV_Texture2D->SRGB = RCameraRenderTarget->SRGB;
 	LOpenCV_Texture2D->SRGB = LCameraRenderTarget->SRGB;
 
+	
+	//cv::FileStorage fileStorage = cv::FileStorage();
+	//fileStorage.open("F:\\Files\\GitHub\\Dental_Robot\\CameraChessTest\\stereoMap.xml", cv::FileStorage::READ);
 
-	cv::FileStorage fileStorage = cv::FileStorage();
-	fileStorage.open("F:\\Files\\GitHub\\Dental_Robot\\CameraChessTest\\stereoMap.xml", cv::FileStorage::READ);
-
-	stereoMapL_x = fileStorage["stereoMapL_x"].mat();
-	stereoMapL_y = fileStorage["stereoMapL_y"].mat();
-	stereoMapR_x = fileStorage["stereoMapR_x"].mat();
-	stereoMapR_y = fileStorage["stereoMapR_y"].mat();
+	//stereoMapL_x = fileStorage["stereoMapL_x"].mat();
+	//stereoMapL_y = fileStorage["stereoMapL_y"].mat();
+	//stereoMapR_x = fileStorage["stereoMapR_x"].mat();
+	//stereoMapR_y = fileStorage["stereoMapR_y"].mat();
 }
 
 // Called every frame
@@ -142,7 +142,7 @@ bool AOpenCVCameraReader::ReadFrame() {
 float x_world;
 float y_world;
 
-float find_depth(cv::Point right_point, cv::Point left_point, cv::Mat frame_right, cv::Mat frame_left, float btwCameraDistance, float fLen, float cameraFov) {
+FVector find_depth(cv::Point right_point, cv::Point left_point, cv::Mat frame_right, cv::Mat frame_left, float btwCameraDistance, float fLen, float cameraFov) {
 
 	//CONVERT FOCAL LENGTH f FROM[mm] TO[pixel]:
 
@@ -156,7 +156,7 @@ float find_depth(cv::Point right_point, cv::Point left_point, cv::Mat frame_righ
 	if (width_right == width_left)
 		f_pixel = (width_right * 0.5) / tan(cameraFov * 0.5 * PI / 180);
 	else
-		return -1;
+		return FVector(-1,-1,-1);
 
 	float x_right = right_point.x;
 	float x_left = left_point.x;
@@ -167,12 +167,7 @@ float find_depth(cv::Point right_point, cv::Point left_point, cv::Mat frame_righ
 	//CALCULATE DEPTH z 
 	float zDepth = (btwCameraDistance * f_pixel) / disparity; //Depth in[cm]
 
-
-	 x_world = (left_point.x  - 320) * zDepth / (f_pixel);
-	 y_world = (left_point.y  - 240) * zDepth / (f_pixel);
-
-
-	return zDepth;
+	return FVector((left_point.x - 320) * zDepth / (f_pixel), (left_point.y - 240) * zDepth / (f_pixel), zDepth);
 }
 
 
@@ -198,24 +193,35 @@ void AOpenCVCameraReader::ProcessFrame() {
 	//cv::remap(lCVMat, lCVMat, stereoMapL_x, stereoMapL_y, cv::INTER_LANCZOS4, cv::BORDER_CONSTANT, 0);
 	
 	//2D Red color objects tracking
-	cv::Point rPoint = findColor(rCVMat, Parameter1, Parameter2, Parameter3, Parameter4, Parameter5, Parameter6);
-	cv::Point lPoint = findColor(lCVMat, Parameter1, Parameter2, Parameter3, Parameter4, Parameter5, Parameter6);
+	cv::Point topRPoint = findColor(rCVMat, TopParameter1, TopParameter2, TopParameter3, TopParameter4, TopParameter5, TopParameter6);
+	cv::Point topLPoint = findColor(lCVMat, TopParameter1, TopParameter2, TopParameter3, TopParameter4, TopParameter5, TopParameter6);
+	cv::Point downRPoint = findColor(rCVMat, DownParameter1, DownParameter2, DownParameter3, DownParameter4, DownParameter5, DownParameter6);
+	cv::Point downLPoint = findColor(lCVMat, DownParameter1, DownParameter2, DownParameter3, DownParameter4, DownParameter5, DownParameter6);
 
-	cv::circle(rCVMat, rPoint, 4, { 0,0,0 }, cv::FILLED);
-	cv::circle(lCVMat, lPoint, 4, { 0,0,0 }, cv::FILLED);
+	cv::circle(rCVMat, topRPoint, 4, { 0,0,255 }, cv::FILLED);
+	cv::circle(lCVMat, topLPoint, 4, { 0,0,255 }, cv::FILLED);
 
-	if (rPoint.x != -1 && lPoint.x != -1)
+	cv::circle(rCVMat, downRPoint, 4, { 0,0,255 }, cv::FILLED);
+	cv::circle(lCVMat, downLPoint, 4, { 0,0,255 }, cv::FILLED);
+
+	if (topRPoint.x != -1 && topLPoint.x != -1)
 	{
 		float	btwCameraDistance = 4; // Distance between the cameras[cm]
 		float	fLen = 1;              // Camera lense's focal length [mm]
 		float	cameraFov = 120;	   // Field of view
 
 
-		float depth = find_depth(rPoint, lPoint, rCVMat, lCVMat, btwCameraDistance, fLen, cameraFov);
+		TopDrillPosition = find_depth(topRPoint, topLPoint, rCVMat, lCVMat, btwCameraDistance, fLen, cameraFov);
+		DownDrillPosition = find_depth(downRPoint, downLPoint, rCVMat, lCVMat, btwCameraDistance, fLen, cameraFov);
 
-		if (GEngine)
-			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, FString(FString::SanitizeFloat(depth) + " " + FString::SanitizeFloat(x_world) + " " + FString::SanitizeFloat(-y_world)));
+		//if (GEngine)
+		//{
+		//	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow,
+		//		FString(FString::SanitizeFloat(topPoint.X) + " " + FString::SanitizeFloat(topPoint.Y) + " " + FString::SanitizeFloat(topPoint.Z)));
+		//	GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red,
+		//		FString(FString::SanitizeFloat(downPoint.X) + " " + FString::SanitizeFloat(downPoint.Y) + " " + FString::SanitizeFloat(downPoint.Z)));
 
+		//}
 		cv::imshow("r", rCVMat);
 		cv::imshow("l", lCVMat);
 	}
