@@ -22,7 +22,7 @@ struct FloatPoint2D {
 extern "C"
 {
 #endif
-    FloatPoint2D    DLL_EXPORT findColor(cv::Mat, int p1, int p2, int p3, int p4, int p5, int p6);
+    FloatPoint2D    DLL_EXPORT findColor(cv::Mat, int p1, int p2, int p3, int p4, int p5, int p6, int objectAccuracy = 10);
     cv::Mat	        DLL_EXPORT getCircleArea(cv::Mat mat1, cv::Mat mat2);
 
 #ifdef __cplusplus
