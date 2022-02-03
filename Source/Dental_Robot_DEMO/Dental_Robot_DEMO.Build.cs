@@ -50,7 +50,10 @@ public class Dental_Robot_DEMO : ModuleRules
 			"Core", 
 			"CoreUObject", 
 			"Engine", 
-			"InputCore"
+			"InputCore",
+			"Json",
+			"JsonUtilities",
+			"Http"
 		});
 
 		PublicDependencyModuleNames.AddRange(new string[] {

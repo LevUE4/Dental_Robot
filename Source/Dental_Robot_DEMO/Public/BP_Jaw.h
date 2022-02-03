@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "BP_Jaw.generated.h"
 
+
 UCLASS()
 class DENTAL_ROBOT_DEMO_API ABP_Jaw : public AActor
 {
@@ -22,5 +23,12 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Sensors")
+	float Temperatura;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Sensors")
+	float Sound;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Sensors")
+	float Pressure;
 
 };
