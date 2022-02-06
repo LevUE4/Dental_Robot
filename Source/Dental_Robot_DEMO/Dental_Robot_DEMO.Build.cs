@@ -70,7 +70,10 @@ public class Dental_Robot_DEMO : ModuleRules
 			"RHI",
 			"RenderCore",
 			"Media",
-			"MediaAssets"
+			"MediaAssets",
+			"Http",
+			"Json",
+			"JsonUtilities"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {  });
