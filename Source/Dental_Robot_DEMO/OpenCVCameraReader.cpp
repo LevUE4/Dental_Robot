@@ -75,13 +75,13 @@ void AOpenCVCameraReader::BeginPlay()
 	LOpenCV_Texture2D->SRGB = LCameraRenderTarget->SRGB;
 
 	
-	//cv::FileStorage fileStorage = cv::FileStorage();
-	//fileStorage.open("F:\\Files\\GitHub\\Dental_Robot\\CameraChessTest\\stereoMap.xml", cv::FileStorage::READ);
+	cv::FileStorage fileStorage = cv::FileStorage();
+	fileStorage.open("H:\\GitHubProjects\\Dental_Robot\\CameraChessTest\\stereoMap.xml", cv::FileStorage::READ);
 
-	//stereoMapL_x = fileStorage["stereoMapL_x"].mat();
-	//stereoMapL_y = fileStorage["stereoMapL_y"].mat();
-	//stereoMapR_x = fileStorage["stereoMapR_x"].mat();
-	//stereoMapR_y = fileStorage["stereoMapR_y"].mat();
+	stereoMapL_x = fileStorage["stereoMapL_x"].mat();
+	stereoMapL_y = fileStorage["stereoMapL_y"].mat();
+	stereoMapR_x = fileStorage["stereoMapR_x"].mat();
+	stereoMapR_y = fileStorage["stereoMapR_y"].mat();
 }
 
 // Called every frame
@@ -175,10 +175,15 @@ void AOpenCVCameraReader::ProcessFrame() {
 
 	
 	//Calibration debug
-	//cv::imwrite("F:\\Files\\GitHub\\Dental_Robot\\CameraChessTest\\Right\\" + std::to_string(Parameter1) + ".jpg", rCVMat);
-	//cv::imwrite("F:\\Files\\GitHub\\Dental_Robot\\CameraChessTest\\Left\\" + std::to_string(Parameter1) + ".jpg", lCVMat);
-	//getCircleArea(rCVMat, lCVMat);
+	/*
+	cv::imwrite("H:\\GitHubProjects\\Dental_Robot\\CameraChessTest\\Right\\" + std::to_string(TopParameter1) + ".jpg", rCVMat);
+	cv::imwrite("H:\\GitHubProjects\\Dental_Robot\\CameraChessTest\\Left\\" + std::to_string(TopParameter1) + ".jpg", lCVMat);
 
+	getCircleArea(rCVMat, lCVMat);
+
+	cv::imshow("r", rCVMat);
+	cv::imshow("l", lCVMat);
+	*/
 	/*
 	if (GEngine)
 		GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Yellow, FString::FromInt(p.x) + "  " + FString::FromInt(p.y));
@@ -189,8 +194,8 @@ void AOpenCVCameraReader::ProcessFrame() {
 	cv::Mat undistortedRMat;
 	cv::Mat undistortedLMat;
 
-	//cv::remap(rCVMat, rCVMat, stereoMapR_x, stereoMapR_y, cv::INTER_LANCZOS4, cv::BORDER_CONSTANT, 0);
-	//cv::remap(lCVMat, lCVMat, stereoMapL_x, stereoMapL_y, cv::INTER_LANCZOS4, cv::BORDER_CONSTANT, 0);
+	cv::remap(rCVMat, rCVMat, stereoMapR_x, stereoMapR_y, cv::INTER_LANCZOS4, cv::BORDER_CONSTANT, 0);
+	cv::remap(lCVMat, lCVMat, stereoMapL_x, stereoMapL_y, cv::INTER_LANCZOS4, cv::BORDER_CONSTANT, 0);
 	
 	//2D Red color objects tracking
 	FloatPoint2D topRPoint = findColor(rCVMat, TopParameter1, TopParameter2, TopParameter3, TopParameter4, TopParameter5, TopParameter6);
@@ -207,9 +212,9 @@ void AOpenCVCameraReader::ProcessFrame() {
 	
 	if (topRPoint.x != -1 && topLPoint.x != -1)
 	{
-		float	btwCameraDistance = 4; // Distance between the cameras[cm]
+		float	btwCameraDistance = 0.8; // Distance between the cameras[cm]
 		float	fLen = 1;              // Camera lense's focal length [mm]
-		float	cameraFov = 120;	   // Field of view 
+		float	cameraFov = 73;	   // Field of view 
 
 
 		TopDrillPosition = find_depth(topRPoint, topLPoint, rCVMat, lCVMat, btwCameraDistance, fLen, cameraFov);
